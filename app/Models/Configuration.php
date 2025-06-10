@@ -2,19 +2,36 @@
 
 namespace App\Models;
 
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Configuration extends Model
 {
+    use HasFactory;
 
-    // protected $table = 'tb_configurations';
-
+    protected $table = 'tb_configurations';
+    
     protected $fillable = [
-        'active', 'code', 'created_at', 'modified_at', 'schedule_date_format',
-        'schedule_date_value', 'sms_from', 'sms_login', 'sms_url', 'sms_url_check'
+        'active',
+        'code',
+        'schedule_date_format',
+        'schedule_date_value',
+        'sms_from',
+        'sms_login',
+        'sms_url',
+        'sms_url_check'
     ];
+
+    protected $casts = [
+        'active' => 'boolean',
+        'created_at' => 'datetime',
+        'modified_at' => 'datetime',
+    ];
+
+    const UPDATED_AT = 'modified_at';
+
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
 }

@@ -2,34 +2,88 @@
 
 namespace App\Models;
 
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class Message extends Model
 {
-    
-//    protected $table = 'tb_messages';
+    use HasFactory;
 
-    protected $table = 'messages';
+    protected $table = 'tb_messages';
+    
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'closed', 'content', 'created_at', 'delivered', 'modified_at',
-        'nb_trial_check', 'notification', 'phone_number', 'reference', 'response',
-        'sent', 'sms_from', 'sms_login', 'auth_id', 'merchant_id'
+        'closed',
+        'content',
+        'delivered',
+        'nb_trial_check',
+        'notification',
+        'phone_number',
+        'reference',
+        'response',
+        'sent',
+        'sms_from',
+        'sms_login',
+        'auth_id',
+        'merchant_id'
     ];
 
-    public function auth(): BelongsTo
+    protected $casts = [
+        'closed' => 'boolean',
+        'delivered' => 'boolean',
+        'sent' => 'boolean',
+        'nb_trial_check' => 'integer',
+        'created_at' => 'datetime',
+        'modified_at' => 'datetime',
+    ];
+
+    const UPDATED_AT = 'modified_at';
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = Str::uuid();
+            }
+        });
+    }
+
+    public function auth()
     {
         return $this->belongsTo(Auth::class, 'auth_id');
     }
 
-    public function merchant(): BelongsTo
+    public function merchant()
     {
         return $this->belongsTo(Merchant::class, 'merchant_id');
+    }
+
+    public function scopeSent($query)
+    {
+        return $query->where('sent', true);
+    }
+
+    public function scopeDelivered($query)
+    {
+        return $query->where('delivered', true);
+    }
+
+    public function scopeFailed($query)
+    {
+        return $query->where('sent', false)->orWhere(function($q) {
+            $q->where('sent', true)->where('delivered', false);
+        });
+    }
+
+    public function getStatusAttribute()
+    {
+        if ($this->delivered) return 'delivered';
+        if ($this->sent) return 'sent';
+        return 'failed';
     }
 }

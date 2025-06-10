@@ -2,22 +2,66 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class AuthToken extends Model
 {
+    use HasFactory;
 
-    // protected $table = 'tb_auth_tokens';
+    protected $table = 'tb_auth_tokens';
+    
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'active', 'code', 'created_at', 'expires_at', 'modified_at', 'token', 'auth_id'
+        'active',
+        'code',
+        'expires_at',
+        'token',
+        'auth_id'
     ];
 
-    public function auth(): BelongsTo
+    protected $hidden = [
+        'token'
+    ];
+
+    protected $casts = [
+        'active' => 'boolean',
+        'created_at' => 'datetime',
+        'expires_at' => 'datetime',
+        'modified_at' => 'datetime',
+    ];
+
+    const UPDATED_AT = 'modified_at';
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = Str::uuid();
+            }
+        });
+    }
+
+    public function auth()
     {
         return $this->belongsTo(Auth::class, 'auth_id');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
+    public function scopeNotExpired($query)
+    {
+        return $query->where(function($q) {
+            $q->whereNull('expires_at')
+              ->orWhere('expires_at', '>', now());
+        });
     }
 }

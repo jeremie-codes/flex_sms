@@ -4,34 +4,40 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        // Create a broadcaster user
-        User::create([
-            'name' => 'Broadcaster User',
-            'email' => 'broadcaster@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'broadcaster',
-            'email_verified_at' => now(),
-        ]);
+        $users = [
+            [
+                'code' => 'USER_ADMIN01',
+                'username' => 'admin',
+                'email' => 'admin@smsgateway.com',
+                'password' => 'password123',
+                'phone_number' => '+33123456789',
+                'enabled' => true,
+            ],
+            [
+                'code' => 'USER_MANAGER01',
+                'username' => 'manager',
+                'email' => 'manager@smsgateway.com',
+                'password' => 'password123',
+                'phone_number' => '+33987654321',
+                'enabled' => true,
+            ],
+            [
+                'code' => 'USER_OPERATOR01',
+                'username' => 'operator',
+                'email' => 'operator@smsgateway.com',
+                'password' => 'password123',
+                'phone_number' => '+33456789123',
+                'enabled' => false,
+            ],
+        ];
 
-        // Create a spectator user
-        User::create([
-            'name' => 'Spectator User',
-            'email' => 'spectator@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'spectator',
-            'email_verified_at' => now(),
-        ]);
-
-        // Create additional users
-        User::factory(8)->create();
+        foreach ($users as $user) {
+            User::create($user);
+        }
     }
 }

@@ -4,57 +4,48 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-
-    // protected $table = 'tb_users';
-
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'tb_users';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
-        'code', 'created_at', 'email', 'enabled', 'modified_at',
-        'password', 'phone_number', 'username', 'remember_token'
+        'code',
+        'email',
+        'enabled',
+        'password',
+        'phone_number',
+        'username'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'password' => 'hashed',
+        'enabled' => 'boolean',
+        'created_at' => 'datetime',
+        'modified_at' => 'datetime',
     ];
 
-    protected static function booted()
+    const UPDATED_AT = 'modified_at';
+
+    public function setPasswordAttribute($value)
     {
-        static::creating(function ($user) {
-            $user->code = self::generateUserCode();
-        });
+        $this->attributes['password'] = Hash::make($value);
     }
 
-    protected static function generateUserCode()
+    public function scopeEnabled($query)
     {
-        $prefix = 'USR';
-        $randomNumber = str_pad(mt_rand(0, 9999999999), 10, '0', STR_PAD_LEFT);
-        return $prefix . $randomNumber;
+        return $query->where('enabled', true);
     }
 
 }

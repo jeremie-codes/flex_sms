@@ -1,50 +1,52 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\MerchantController;
-use App\Http\Controllers\Admin\MessageController;
-use App\Http\Controllers\Admin\ConfigurationController;
-use App\Http\Controllers\Admin\TokenController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MerchantController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AuthTokenController;
+use App\Http\Controllers\ConfigurationController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ProfileController;
 
-Route::get('/login', function() {
-    return view('auths.login');
-})->name('admin.home');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::post('/login', [DashboardController::class, 'login'])->name('login');
+// Authentication Routes
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::middleware(['auth'])->group(function () {
-    // Dashboard
+// Protected Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+    // Profile Routes
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Merchants
+    Route::resource('merchants', MerchantController::class);
 
     // Users
     Route::resource('users', UserController::class);
 
-    // Merchants
-    Route::resource('merchants', MerchantController::class);
-    Route::patch('merchants/{merchant}/status', [MerchantController::class, 'toggleStatus'])->name('merchants.status');
+    // Auths
+    Route::resource('auths', AuthController::class);
 
-    // Messages
-    Route::resource('messages', MessageController::class)->only(['index', 'show']);
-    Route::post('messages/{message}/retry', [MessageController::class, 'retry'])->name('messages.retry');
+    // Auth Tokens
+    Route::resource('auth-tokens', AuthTokenController::class);
+    Route::get('/auth-tokens/generate-token', [AuthTokenController::class, 'generateToken'])->name('auth-tokens.generate-token');
 
     // Configurations
-    Route::get('configurations', [ConfigurationController::class, 'index'])->name('configurations.index');
-    Route::post('configurations', [ConfigurationController::class, 'update'])->name('configurations.update');
+    Route::resource('configurations', ConfigurationController::class);
 
-    // API Tokens
-    Route::resource('tokens', TokenController::class)->except(['edit', 'update']);
-    Route::post('tokens/{token}/regenerate', [TokenController::class, 'regenerate'])->name('tokens.regenerate');
-    Route::post('tokens/{token}/toggle', [TokenController::class, 'toggle'])->name('tokens.toggle');
-
-    // Authentication
-    Route::post('/logout', function() {
-        auth()->logout();
-        session()->invalidate();
-        session()->regenerateToken();
-        return redirect()->route('admin.home');
-    })->name('logout');
-
+    // Messages
+    Route::resource('messages', MessageController::class);
 });

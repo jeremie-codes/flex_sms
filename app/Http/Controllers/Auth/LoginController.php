@@ -5,72 +5,50 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
+
 
 class LoginController extends Controller
 {
-    /**
-     * Show the login form.
-     *
-     * @return \Illuminate\View\View
-     */
     public function showLoginForm()
     {
+        // dd(Auth::use);
         return view('auth.login');
     }
 
-    /**
-     * Handle a login request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+        $user = User::where('username', $request->username)
+                    ->orWhere('email', $request->username)
+                    ->first();
 
-            $user = Auth::user();
-            
-            // Check if 2FA is enabled for this user
-            if ($user->two_factor_enabled) {
-                // Store intended URL for after 2FA verification
-                session(['auth.2fa.intended_url' => redirect()->intended()->getTargetUrl()]);
-                
-                // Logout and redirect to 2FA verification
-                Auth::logout();
-                
-                // Store user ID for 2FA verification
-                session(['auth.2fa.user_id' => $user->id]);
-                
-                return redirect()->route('auth.2fa.verify');
-            }
+        if ($user && Hash::check($request->password, $user->password) && $user->enabled) {
+            Auth::login($user);
+
+            $request->session()->regenerate();
 
             return redirect()->intended(route('dashboard'));
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->withInput($request->only('email', 'remember'));
+            'username' => 'Les identifiants fournis ne correspondent pas à nos enregistrements ou le compte est désactivé.',
+        ])->withInput($request->only('username'));
     }
 
-    /**
-     * Log the user out.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 }
