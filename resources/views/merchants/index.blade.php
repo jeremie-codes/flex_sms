@@ -43,7 +43,7 @@
 
 <!-- Table -->
 <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
-    <table class="min-w-full divide-y divide-gray-200">
+    <table class="min-w-full divide-y divide-gray-200 overflow-x-scroll">
         <thead class="bg-gray-50">
             <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merchant</th>
@@ -94,12 +94,18 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ route('merchants.show', $merchant) }}" class="text-blue-600 hover:text-blue-900">Voir</a>
-                            <a href="{{ route('merchants.edit', $merchant) }}" class="text-indigo-600 hover:text-indigo-900">Modifier</a>
+                            <a href="{{ route('merchants.show', $merchant) }}" class="text-blue-600 hover:text-blue-900">
+                                <i class='bx bx-show text-xl'  ></i>
+                            </a>
+                            <a href="{{ route('merchants.edit', $merchant) }}" class="text-yellow-600 hover:text-yellow-900">
+                                <i class="bx bx-edit text-xl"></i>
+                            </a>
                             <form method="POST" action="{{ route('merchants.destroy', $merchant) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce merchant ?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">Supprimer</button>
+                                <button type="submit" class="text-red-600 hover:text-red-900">
+                                    <i class="bx bx-trash text-xl"></i>
+                                </button>
                             </form>
                         </div>
                     </td>

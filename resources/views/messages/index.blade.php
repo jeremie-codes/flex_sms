@@ -8,11 +8,11 @@
     <div class="sm:flex-auto">
         <p class="mt-2 text-sm text-gray-700">Liste de tous les messages SMS avec leurs statuts et informations.</p>
     </div>
-    <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+    {{-- <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
         <a href="{{ route('messages.create') }}" class="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto">
             Nouveau Message
         </a>
-    </div>
+    </div> --}}
 </div>
 
 <!-- Filters -->
@@ -55,14 +55,14 @@
 
 <!-- Table -->
 <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
-    <table class="min-w-full divide-y divide-gray-200">
+    <table class="min-w-full divide-y divide-gray-200 overflow-x-scroll">
         <thead class="bg-gray-50">
             <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contenu</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merchant</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Authentification</th>
+                {{-- <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Authentification</th> --}}
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Référence</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créé le</th>
                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
@@ -76,7 +76,7 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm text-gray-900 max-w-xs truncate" title="{{ $message->content }}">
-                            {{ Str::limit($message->content, 50) }}
+                            {{ Str::limit($message->content, 30) }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -106,13 +106,13 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         @if($message->merchant)
                             <a href="{{ route('merchants.show', $message->merchant) }}" class="text-blue-600 hover:text-blue-900">
-                                {{ $message->merchant->name }}
+                                {{ Str::limit($message->merchant->name, 20) }}
                             </a>
                         @else
                             -
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {{-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         @if($message->auth)
                             <a href="{{ route('auths.show', $message->auth) }}" class="text-blue-600 hover:text-blue-900">
                                 {{ $message->auth->code }}
@@ -120,7 +120,7 @@
                         @else
                             -
                         @endif
-                    </td>
+                    </td> --}}
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {{ $message->reference ?? '-' }}
                     </td>
@@ -129,12 +129,18 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ route('messages.show', $message) }}" class="text-blue-600 hover:text-blue-900">Voir</a>
-                            <a href="{{ route('messages.edit', $message) }}" class="text-indigo-600 hover:text-indigo-900">Modifier</a>
+                            <a href="{{ route('messages.show', $message) }}" class="text-blue-600 hover:text-blue-900">
+                                <i class='bx bx-show text-xl'  ></i>
+                            </a>
+                            <a href="{{ route('messages.edit', $message) }}" class="text-yellow-600 hover:text-yellow-900">
+                                <i class="bx bx-edit text-xl"></i>
+                            </a>
                             <form method="POST" action="{{ route('messages.destroy', $message) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce message ?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">Supprimer</button>
+                                <button type="submit" class="text-red-600 hover:text-red-900">
+                                    <i class="bx bx-trash text-xl"></i>
+                                </button>
                             </form>
                         </div>
                     </td>
