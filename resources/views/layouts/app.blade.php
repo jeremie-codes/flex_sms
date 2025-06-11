@@ -6,21 +6,25 @@
     <title>@yield('title', 'SMS Gateway Admin')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@tailwindcss/typography@0.5.10/dist/typography.js"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-     <!-- Alpine.js -->
-     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="h-full">
     <div class="min-h-full">
+        <!-- Mobile menu overlay -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 hidden lg:hidden"></div>
+
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0">
-            <div class="flex h-16 shrink-0 items-center px-6">
+        <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
+            <div class="flex h-16 shrink-0 items-center px-6 justify-between">
                 <h1 class="text-xl font-bold text-white">SMS Gateway</h1>
+                <!-- Close button for mobile -->
+                <button id="close-sidebar" class="lg:hidden text-gray-300 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
             <nav class="mt-8 flex-1">
                 <ul class="space-y-1 px-4">
@@ -43,21 +47,22 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('auths.index') }}"
-                           class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white {{ request()->routeIs('auths.*') ? 'bg-gray-900 text-white' : '' }}">
-                            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                            </svg>
-                            Authentifications
-                        </a>
-                    </li>
-                     <li>
                         <a href="{{ route('messages.index') }}"
                            class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white {{ request()->routeIs('messages.*') ? 'bg-gray-900 text-white' : '' }}">
                             <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                             </svg>
                             Messages
+                        </a>
+                    </li>
+                    <li>
+                    <li>
+                        <a href="{{ route('auths.index') }}"
+                           class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white {{ request()->routeIs('auths.*') ? 'bg-gray-900 text-white' : '' }}">
+                            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                            </svg>
+                            Authentifications
                         </a>
                     </li>
                     <li>
@@ -79,8 +84,7 @@
                             Configurations
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ route('users.index') }}"
+                         <a href="{{ route('users.index') }}"
                            class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white {{ request()->routeIs('users.*') ? 'bg-gray-900 text-white' : '' }}">
                             <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
@@ -123,8 +127,15 @@
         <div class="lg:pl-64">
             <!-- Top bar -->
             <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" class="lg:hidden -m-2.5 p-2.5 text-gray-700">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+
                 <div class="flex-1">
-                    <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                    <h2 class="text-xl font-bold leading-7 text-gray-900 sm:truncate sm:text-2xl sm:tracking-tight">
                         @yield('header', 'Dashboard')
                     </h2>
                 </div>
@@ -215,5 +226,48 @@
 
     <!-- Alpine.js for dropdown functionality -->
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <!-- Mobile menu JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeSidebarButton = document.getElementById('close-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-menu-overlay');
+
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            mobileMenuButton.addEventListener('click', openSidebar);
+            closeSidebarButton.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+
+            // Close sidebar when clicking on a link (mobile only)
+            const sidebarLinks = sidebar.querySelectorAll('a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 1024) { // lg breakpoint
+                        closeSidebar();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) { // lg breakpoint
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
