@@ -71,7 +71,7 @@
                     </div>
                 </form>
 
-                <div class="mt-6">
+                {{-- <div class="mt-6">
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-300" />
@@ -93,7 +93,7 @@
                             <p>Mot de passe: <code class="bg-white px-1 rounded">password123</code></p>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
